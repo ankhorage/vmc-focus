@@ -9,6 +9,10 @@ prototype built with Angular and the publicly available SBB Lyne Design System.
 > **Independent portfolio prototype.** This project is not an official SBB product.
 > It uses only synthetic demo data and contains no confidential SBB information.
 
+## Live demo
+
+**[Open VMC Focus](https://vmc-focus.ankhorage.com)**
+
 VMC Focus is a portfolio case study for a UX/UI Developer role in cyber security. It
 explores how complex vulnerability data can be transformed into an understandable,
 accessible, and traceable decision workflow.
