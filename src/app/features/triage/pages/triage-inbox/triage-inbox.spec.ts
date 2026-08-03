@@ -36,4 +36,13 @@ describe('TriageInbox', () => {
     expect(content).not.toContain('assigned');
     expect(content).not.toContain('in-review');
   });
+
+  it('should render Lyne status components for severity and workflow state', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const statuses = compiled.querySelectorAll('sbb-status');
+
+    expect(statuses).toHaveLength(6);
+    expect(statuses[0]?.getAttribute('type')).toBe('error');
+    expect(statuses[1]?.getAttribute('type')).toBe('not-started');
+  });
 });

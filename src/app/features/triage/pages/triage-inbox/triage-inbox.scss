@@ -63,9 +63,8 @@
   gap: 0.25rem;
 }
 
-.severity {
-  font-weight: 700;
-  text-transform: uppercase;
+.severity-status {
+  flex-shrink: 0;
 }
 
 .metadata {

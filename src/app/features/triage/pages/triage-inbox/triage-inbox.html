@@ -23,9 +23,9 @@
                 <h3>{{ vulnerability.title }}</h3>
               </div>
 
-              <span class="severity">
+              <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
                 {{ vulnerability.severityLabel }}
-              </span>
+              </sbb-status>
             </header>
 
             <p>{{ vulnerability.summary }}</p>
@@ -43,7 +43,11 @@
 
               <div>
                 <dt>Status</dt>
-                <dd>{{ vulnerability.statusLabel }}</dd>
+                <dd>
+                  <sbb-status [type]="vulnerability.workflowStatusType">
+                    {{ vulnerability.statusLabel }}
+                  </sbb-status>
+                </dd>
               </div>
 
               <div>
