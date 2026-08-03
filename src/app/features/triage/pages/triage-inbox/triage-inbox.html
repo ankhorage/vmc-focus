@@ -5,96 +5,133 @@
     <p>Priorisierte Schwachstellen und die nächsten erforderlichen Massnahmen.</p>
   </header>
 
+  <div class="search-controls" role="search" aria-label="Schwachstellen durchsuchen">
+    <sbb-form-field class="search-field" size="s" [hiddenLabel]="true">
+      <label for="vulnerability-search">Schwachstellen durchsuchen</label>
+
+      <input
+        id="vulnerability-search"
+        type="search"
+        autocomplete="off"
+        placeholder="CVE, Titel, Team oder Risikosignal"
+        [value]="searchQuery()"
+        (input)="updateSearchQuery($event)"
+      />
+
+      <sbb-form-field-clear (click)="clearSearch()"></sbb-form-field-clear>
+    </sbb-form-field>
+  </div>
+
   <section aria-labelledby="vulnerability-list-title">
     <header class="section-header">
       <div>
         <h2 id="vulnerability-list-title">Offene Schwachstellen</h2>
-        <p>{{ vulnerabilities.length }} Einträge benötigen eine Beurteilung.</p>
+
+        <p aria-live="polite">
+          @if (hasSearchQuery()) {
+            {{ filteredVulnerabilities().length }} von {{ vulnerabilities.length }} Einträgen
+            gefunden.
+          } @else {
+            {{ vulnerabilities.length }} Einträge benötigen eine Beurteilung.
+          }
+        </p>
       </div>
     </header>
 
-    <ul class="vulnerability-list">
-      @for (vulnerability of vulnerabilities; track vulnerability.id) {
-        <li class="vulnerability-item">
-          <article>
-            <header class="vulnerability-header">
-              <div>
-                <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
-                <h3>{{ vulnerability.title }}</h3>
-              </div>
+    @if (filteredVulnerabilities().length > 0) {
+      <ul class="vulnerability-list">
+        @for (vulnerability of filteredVulnerabilities(); track vulnerability.id) {
+          <li class="vulnerability-item">
+            <article>
+              <header class="vulnerability-header">
+                <div>
+                  <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
+                  <h3>{{ vulnerability.title }}</h3>
+                </div>
 
-              <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
-                {{ vulnerability.severityLabel }}
-              </sbb-status>
-            </header>
+                <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
+                  {{ vulnerability.severityLabel }}
+                </sbb-status>
+              </header>
 
-            <p>{{ vulnerability.summary }}</p>
+              <p>{{ vulnerability.summary }}</p>
 
-            <dl class="metadata">
-              <div>
-                <dt>CVSS</dt>
-                <dd>{{ vulnerability.cvssScore }}</dd>
-              </div>
+              <dl class="metadata">
+                <div>
+                  <dt>CVSS</dt>
+                  <dd>{{ vulnerability.cvssScore }}</dd>
+                </div>
 
-              <div>
-                <dt>EPSS</dt>
-                <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
-              </div>
+                <div>
+                  <dt>EPSS</dt>
+                  <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
+                </div>
 
-              <div>
-                <dt>Status</dt>
-                <dd>
-                  <sbb-status [type]="vulnerability.workflowStatusType">
-                    {{ vulnerability.statusLabel }}
-                  </sbb-status>
-                </dd>
-              </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd>
+                    <sbb-status [type]="vulnerability.workflowStatusType">
+                      {{ vulnerability.statusLabel }}
+                    </sbb-status>
+                  </dd>
+                </div>
 
-              <div>
-                <dt>Verantwortlich</dt>
-                <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
-              </div>
-            </dl>
+                <div>
+                  <dt>Verantwortlich</dt>
+                  <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
+                </div>
+              </dl>
 
-            @if (vulnerability.riskSignals.length > 0) {
-              <sbb-expansion-panel
-                class="risk-signals"
-                color="milk"
-                size="s"
-                titleLevel="4"
-                [borderless]="true"
-              >
-                <sbb-expansion-panel-header>
-                  <span class="risk-signals__header">
-                    <span>Warum priorisiert?</span>
+              @if (vulnerability.riskSignals.length > 0) {
+                <sbb-expansion-panel
+                  class="risk-signals"
+                  color="milk"
+                  size="s"
+                  titleLevel="4"
+                  [borderless]="true"
+                >
+                  <sbb-expansion-panel-header>
+                    <span class="risk-signals__header">
+                      <span>Warum priorisiert?</span>
 
-                    <span class="risk-signal-count">
-                      {{ vulnerability.riskSignals.length }}
-                      {{ vulnerability.riskSignals.length === 1 ? 'Signal' : 'Signale' }}
+                      <span class="risk-signal-count">
+                        {{ vulnerability.riskSignals.length }}
+                        {{ vulnerability.riskSignals.length === 1 ? 'Signal' : 'Signale' }}
+                      </span>
                     </span>
-                  </span>
-                </sbb-expansion-panel-header>
+                  </sbb-expansion-panel-header>
 
-                <sbb-expansion-panel-content>
-                  <dl class="risk-signal-list">
-                    @for (signal of vulnerability.riskSignals; track signal.id) {
-                      <div class="risk-signal">
-                        <dt>
-                          <sbb-chip-label size="xs" color="milk">
-                            {{ signal.label }}
-                          </sbb-chip-label>
-                        </dt>
+                  <sbb-expansion-panel-content>
+                    <dl class="risk-signal-list">
+                      @for (signal of vulnerability.riskSignals; track signal.id) {
+                        <div class="risk-signal">
+                          <dt>
+                            <sbb-chip-label size="xs" color="milk">
+                              {{ signal.label }}
+                            </sbb-chip-label>
+                          </dt>
 
-                        <dd>{{ signal.explanation }}</dd>
-                      </div>
-                    }
-                  </dl>
-                </sbb-expansion-panel-content>
-              </sbb-expansion-panel>
-            }
-          </article>
-        </li>
-      }
-    </ul>
+                          <dd>{{ signal.explanation }}</dd>
+                        </div>
+                      }
+                    </dl>
+                  </sbb-expansion-panel-content>
+                </sbb-expansion-panel>
+              }
+            </article>
+          </li>
+        }
+      </ul>
+    } @else {
+      <sbb-message class="empty-state">
+        <sbb-title slot="title" level="3"> Keine Schwachstellen gefunden </sbb-title>
+
+        <p slot="subtitle">Für «{{ searchQuery() }}» gibt es keine passenden Einträge.</p>
+
+        <sbb-secondary-button slot="action" size="s" type="button" (click)="clearSearch()">
+          Suche zurücksetzen
+        </sbb-secondary-button>
+      </sbb-message>
+    }
   </section>
 </main>

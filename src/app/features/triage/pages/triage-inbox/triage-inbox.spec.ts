@@ -15,16 +15,48 @@ describe('TriageInbox', () => {
           imports: [],
           template: `
             <main>
-              @for (vulnerability of vulnerabilities; track vulnerability.id) {
+              <label for="search">Schwachstellen durchsuchen</label>
+
+              <input
+                id="search"
+                [value]="searchQuery()"
+                (input)="updateSearchQuery($event)"
+              />
+
+              <button
+                class="clear-search"
+                type="button"
+                (click)="clearSearch()"
+              >
+                Suche zurücksetzen
+              </button>
+
+              <p class="result-count">
+                {{ filteredVulnerabilities().length }}
+              </p>
+
+              @for (
+                vulnerability of filteredVulnerabilities();
+                track vulnerability.id
+              ) {
                 <article
                   class="vulnerability"
-                  [attr.data-severity-type]="vulnerability.severityStatusType"
-                  [attr.data-workflow-type]="vulnerability.workflowStatusType"
+                  [attr.data-severity-type]="
+                    vulnerability.severityStatusType
+                  "
+                  [attr.data-workflow-type]="
+                    vulnerability.workflowStatusType
+                  "
                 >
                   <h2>{{ vulnerability.title }}</h2>
 
-                  <p class="severity">{{ vulnerability.severityLabel }}</p>
-                  <p class="status">{{ vulnerability.statusLabel }}</p>
+                  <p class="severity">
+                    {{ vulnerability.severityLabel }}
+                  </p>
+
+                  <p class="status">
+                    {{ vulnerability.statusLabel }}
+                  </p>
 
                   @if (vulnerability.riskSignals.length > 0) {
                     <section class="risk-signals">
@@ -51,6 +83,12 @@ describe('TriageInbox', () => {
                     </section>
                   }
                 </article>
+              }
+
+              @if (filteredVulnerabilities().length === 0) {
+                <p class="empty-state">
+                  Keine Schwachstellen gefunden
+                </p>
               }
             </main>
           `,
@@ -117,5 +155,45 @@ describe('TriageInbox', () => {
     expect(content).toContain('SLA gefährdet');
 
     expect(content).toContain('Die Schwachstelle wird nachweislich aktiv ausgenutzt.');
+  });
+
+  it('should filter vulnerabilities by title and risk signal', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const searchInput = compiled.querySelector<HTMLInputElement>('#search');
+
+    expect(searchInput).not.toBeNull();
+
+    searchInput!.value = 'offentlich';
+    searchInput!.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const vulnerabilities = compiled.querySelectorAll('.vulnerability');
+
+    expect(vulnerabilities).toHaveLength(1);
+    expect(compiled.textContent).toContain(
+      'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
+    );
+  });
+
+  it('should show an empty state and reset the search', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const searchInput = compiled.querySelector<HTMLInputElement>('#search');
+    const clearButton = compiled.querySelector<HTMLButtonElement>('.clear-search');
+
+    expect(searchInput).not.toBeNull();
+    expect(clearButton).not.toBeNull();
+
+    searchInput!.value = 'nicht vorhandene schwachstelle';
+    searchInput!.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(0);
+    expect(compiled.textContent).toContain('Keine Schwachstellen gefunden');
+
+    clearButton!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(3);
+    expect(compiled.querySelector('.empty-state')).toBeNull();
   });
 });
