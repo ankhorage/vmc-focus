@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
+import { SbbChipLabel } from '@sbb-esta/lyne-angular/chip-label';
+import {
+  SbbExpansionPanel,
+  SbbExpansionPanelContent,
+  SbbExpansionPanelHeader,
+} from '@sbb-esta/lyne-angular/expansion-panel';
 import { SbbStatus } from '@sbb-esta/lyne-angular/status';
 
 import { VULNERABILITY_FIXTURES } from '../../domain/vulnerability.fixtures';
@@ -66,7 +72,13 @@ function createVulnerabilityListItem(vulnerability: Vulnerability): Vulnerabilit
 
 @Component({
   selector: 'app-triage-inbox',
-  imports: [SbbStatus],
+  imports: [
+    SbbChipLabel,
+    SbbExpansionPanel,
+    SbbExpansionPanelContent,
+    SbbExpansionPanelHeader,
+    SbbStatus,
+  ],
   templateUrl: './triage-inbox.html',
   styleUrl: './triage-inbox.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

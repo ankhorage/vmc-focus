@@ -55,6 +55,43 @@
                 <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
               </div>
             </dl>
+
+            @if (vulnerability.riskSignals.length > 0) {
+              <sbb-expansion-panel
+                class="risk-signals"
+                color="milk"
+                size="s"
+                titleLevel="4"
+                [borderless]="true"
+              >
+                <sbb-expansion-panel-header>
+                  <span class="risk-signals__header">
+                    <span>Warum priorisiert?</span>
+
+                    <span class="risk-signal-count">
+                      {{ vulnerability.riskSignals.length }}
+                      {{ vulnerability.riskSignals.length === 1 ? 'Signal' : 'Signale' }}
+                    </span>
+                  </span>
+                </sbb-expansion-panel-header>
+
+                <sbb-expansion-panel-content>
+                  <dl class="risk-signal-list">
+                    @for (signal of vulnerability.riskSignals; track signal.id) {
+                      <div class="risk-signal">
+                        <dt>
+                          <sbb-chip-label size="xs" color="milk">
+                            {{ signal.label }}
+                          </sbb-chip-label>
+                        </dt>
+
+                        <dd>{{ signal.explanation }}</dd>
+                      </div>
+                    }
+                  </dl>
+                </sbb-expansion-panel-content>
+              </sbb-expansion-panel>
+            }
           </article>
         </li>
       }
