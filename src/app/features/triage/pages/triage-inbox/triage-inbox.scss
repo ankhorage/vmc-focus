@@ -20,7 +20,7 @@
 .section-header p,
 .vulnerability-id,
 .vulnerability-header h3,
-.vulnerability-item p,
+.vulnerability-card__content > p,
 .metadata,
 .risk-signal-list {
   margin: 0;
@@ -45,13 +45,17 @@
   margin-block-start: 1rem;
 }
 
-.vulnerability-item {
+.vulnerability-list-item {
+  min-width: 0;
+}
+
+.vulnerability-card {
+  display: block;
+}
+
+.vulnerability-card__content {
   display: grid;
   gap: 1rem;
-
-  padding: 1.25rem;
-  border: 1px solid currentcolor;
-  border-radius: 0.25rem;
 }
 
 .vulnerability-header {

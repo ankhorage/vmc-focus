@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { SbbSecondaryButton } from '@sbb-esta/lyne-angular/button';
+import { SbbCard } from '@sbb-esta/lyne-angular/card';
 import { SbbChipLabel } from '@sbb-esta/lyne-angular/chip-label';
 import {
   SbbExpansionPanel,
@@ -104,6 +105,7 @@ function createVulnerabilityListItem(vulnerability: Vulnerability): Vulnerabilit
 @Component({
   selector: 'app-triage-inbox',
   imports: [
+    SbbCard,
     SbbChipLabel,
     SbbExpansionPanel,
     SbbExpansionPanelContent,
