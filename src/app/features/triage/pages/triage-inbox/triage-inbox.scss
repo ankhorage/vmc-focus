@@ -61,19 +61,26 @@
   margin-inline-start: auto;
 }
 
-.filter-grid {
+.filter-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-  gap: 1.5rem 2rem;
-  align-items: start;
+  gap: 1.25rem;
+}
+
+.filter-primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  gap: 1.5rem;
+  align-items: end;
 }
 
 .search-control,
+.status-control,
 .severity-filter {
   min-width: 0;
 }
 
-.search-field {
+.search-field,
+.status-field {
   width: 100%;
   min-width: 0;
 }
@@ -225,10 +232,6 @@
   margin-block-start: 1.5rem;
 }
 
-/*
- * The persistent sidebar reduces the usable content width considerably.
- * Below this viewport width, the facts panel becomes a compact full-width row.
- */
 @media (width < 90rem) {
   .vulnerability-overview {
     grid-template-columns: minmax(0, 1fr);
@@ -255,6 +258,10 @@
 }
 
 @media (width < 64rem) {
+  .filter-primary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .metadata {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.875rem 1rem;

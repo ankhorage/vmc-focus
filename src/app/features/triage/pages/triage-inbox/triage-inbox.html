@@ -13,7 +13,7 @@
               Ansicht eingrenzen
             </sbb-title>
 
-            <p>Suche und Schweregrad können kombiniert werden.</p>
+            <p>Suche, Status und Schweregrad können kombiniert werden.</p>
           </div>
 
           <sbb-transparent-button
@@ -26,24 +26,45 @@
           </sbb-transparent-button>
         </header>
 
-        <div class="filter-grid">
-          <div class="search-control" role="search" aria-label="Schwachstellen durchsuchen">
-            <sbb-form-field class="search-field" size="s">
-              <label for="vulnerability-search">Suche</label>
+        <div class="filter-controls">
+          <div class="filter-primary">
+            <div class="search-control" role="search" aria-label="Schwachstellen durchsuchen">
+              <sbb-form-field class="search-field" size="s">
+                <label for="vulnerability-search">Suche</label>
 
-              <input
-                id="vulnerability-search"
-                type="text"
-                enterkeyhint="search"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="CVE, Titel, Team oder Risikosignal"
-                [value]="searchQuery()"
-                (input)="updateSearchQuery($event)"
-              />
+                <input
+                  id="vulnerability-search"
+                  type="text"
+                  enterkeyhint="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="CVE, Titel, Team oder Risikosignal"
+                  [value]="searchQuery()"
+                  (input)="updateSearchQuery($event)"
+                />
 
-              <sbb-form-field-clear (click)="clearSearch()"></sbb-form-field-clear>
-            </sbb-form-field>
+                <sbb-form-field-clear (click)="clearSearch()"></sbb-form-field-clear>
+              </sbb-form-field>
+            </div>
+
+            <div class="status-control">
+              <sbb-form-field class="status-field" size="s">
+                <label for="workflow-status-filter">Workflow-Status</label>
+
+                <sbb-select
+                  id="workflow-status-filter"
+                  aria-label="Workflow-Status filtern"
+                  [value]="selectedStatus()"
+                  (change)="updateStatusFilter($event)"
+                >
+                  @for (option of statusOptions; track option.value) {
+                    <sbb-option [value]="option.value">
+                      {{ option.label }}
+                    </sbb-option>
+                  }
+                </sbb-select>
+              </sbb-form-field>
+            </div>
           </div>
 
           <div class="severity-filter">

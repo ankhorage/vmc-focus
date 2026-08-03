@@ -23,6 +23,20 @@ describe('TriageInbox', () => {
                 (input)="updateSearchQuery($event)"
               />
 
+              <label for="status">Workflow-Status</label>
+
+              <select
+                id="status"
+                [value]="selectedStatus()"
+                (change)="updateStatusFilter($event)"
+              >
+                @for (option of statusOptions; track option.value) {
+                  <option [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+
               <button
                 class="clear-search"
                 type="button"
@@ -204,9 +218,8 @@ describe('TriageInbox', () => {
     searchInput!.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    const vulnerabilities = compiled.querySelectorAll('.vulnerability');
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(1);
 
-    expect(vulnerabilities).toHaveLength(1);
     expect(compiled.textContent).toContain(
       'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
     );
@@ -226,30 +239,80 @@ describe('TriageInbox', () => {
     highFilter!.click();
     fixture.detectChanges();
 
-    const vulnerabilities = compiled.querySelectorAll('.vulnerability');
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(2);
 
-    expect(vulnerabilities).toHaveLength(2);
     expect(compiled.textContent).toContain(
       'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
     );
+
     expect(compiled.textContent).toContain('Rechteausweitung im Identitätsdienst');
-    expect(compiled.textContent).not.toContain('Unzureichende Transportverschlüsselung');
+
+    expect(compiled.textContent).not.toContain(
+      'Offenlegung von Informationen in der Berichtskomponente',
+    );
   });
 
-  it('should combine search and severity filters', () => {
+  it('should filter vulnerabilities by workflow status', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const statusSelect = compiled.querySelector<HTMLSelectElement>('#status');
+
+    expect(statusSelect).not.toBeNull();
+
+    statusSelect!.value = 'assigned';
+    statusSelect!.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(1);
+
+    expect(compiled.textContent).toContain('Rechteausweitung im Identitätsdienst');
+
+    expect(compiled.textContent).not.toContain(
+      'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
+    );
+  });
+
+  it('should combine search, severity, and status filters', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     const highFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="high"]');
 
+    const statusSelect = compiled.querySelector<HTMLSelectElement>('#status');
+
     const searchInput = compiled.querySelector<HTMLInputElement>('#search');
 
     expect(highFilter).not.toBeNull();
+    expect(statusSelect).not.toBeNull();
     expect(searchInput).not.toBeNull();
 
     highFilter!.click();
 
-    searchInput!.value = 'gateway';
+    statusSelect!.value = 'assigned';
+    statusSelect!.dispatchEvent(new Event('change'));
+
+    searchInput!.value = 'identität';
     searchInput!.dispatchEvent(new Event('input'));
+
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(1);
+
+    expect(compiled.textContent).toContain('Rechteausweitung im Identitätsdienst');
+  });
+
+  it('should show an empty state for incompatible filters', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const criticalFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="critical"]');
+
+    const statusSelect = compiled.querySelector<HTMLSelectElement>('#status');
+
+    expect(criticalFilter).not.toBeNull();
+    expect(statusSelect).not.toBeNull();
+
+    criticalFilter!.click();
+
+    statusSelect!.value = 'assigned';
+    statusSelect!.dispatchEvent(new Event('change'));
 
     fixture.detectChanges();
 
@@ -258,20 +321,26 @@ describe('TriageInbox', () => {
     expect(compiled.textContent).toContain('Keine Schwachstellen gefunden');
   });
 
-  it('should reset search and severity filters together', () => {
+  it('should reset all filters together', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     const criticalFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="critical"]');
+
+    const statusSelect = compiled.querySelector<HTMLSelectElement>('#status');
 
     const searchInput = compiled.querySelector<HTMLInputElement>('#search');
 
     const resetButton = compiled.querySelector<HTMLButtonElement>('.reset-filters');
 
     expect(criticalFilter).not.toBeNull();
+    expect(statusSelect).not.toBeNull();
     expect(searchInput).not.toBeNull();
     expect(resetButton).not.toBeNull();
 
     criticalFilter!.click();
+
+    statusSelect!.value = 'assigned';
+    statusSelect!.dispatchEvent(new Event('change'));
 
     searchInput!.value = 'nicht vorhandene schwachstelle';
     searchInput!.dispatchEvent(new Event('input'));
@@ -284,8 +353,11 @@ describe('TriageInbox', () => {
     fixture.detectChanges();
 
     expect(searchInput!.value).toBe('');
+    expect(statusSelect!.value).toBe('all');
     expect(criticalFilter!.getAttribute('aria-pressed')).toBe('false');
+
     expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(3);
+
     expect(compiled.querySelector('.empty-state')).toBeNull();
   });
 });

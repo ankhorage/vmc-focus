@@ -10,6 +10,8 @@ import {
 } from '@sbb-esta/lyne-angular/expansion-panel';
 import { SbbFormField, SbbFormFieldClear } from '@sbb-esta/lyne-angular/form-field';
 import { SbbMessage } from '@sbb-esta/lyne-angular/message';
+import { SbbOption } from '@sbb-esta/lyne-angular/option';
+import { SbbSelect } from '@sbb-esta/lyne-angular/select';
 import { SbbStatus } from '@sbb-esta/lyne-angular/status';
 import { SbbTag, SbbTagGroup } from '@sbb-esta/lyne-angular/tag';
 import { SbbTitle } from '@sbb-esta/lyne-angular/title';
@@ -18,6 +20,8 @@ import { VULNERABILITY_FIXTURES } from '../../domain/vulnerability.fixtures';
 import type { Vulnerability } from '../../domain/vulnerability.model';
 
 type Severity = Vulnerability['severity'];
+type WorkflowStatus = Vulnerability['status'];
+type StatusFilter = WorkflowStatus | 'all';
 
 type StatusType =
   | 'info'
@@ -35,6 +39,11 @@ interface SeverityFilterOption {
   readonly amount: string;
 }
 
+interface StatusFilterOption {
+  readonly value: StatusFilter;
+  readonly label: string;
+}
+
 interface VulnerabilityListItem extends Vulnerability {
   readonly severityLabel: string;
   readonly severityStatusType: StatusType;
@@ -44,6 +53,15 @@ interface VulnerabilityListItem extends Vulnerability {
 }
 
 const SEVERITY_VALUES: readonly Severity[] = ['critical', 'high', 'medium', 'low'];
+
+const STATUS_VALUES: readonly WorkflowStatus[] = [
+  'new',
+  'in-review',
+  'assigned',
+  'in-remediation',
+  'resolved',
+  'accepted',
+];
 
 const SEVERITY_LABELS: Record<Severity, string> = {
   critical: 'Kritisch',
@@ -59,7 +77,7 @@ const SEVERITY_STATUS_TYPES: Record<Severity, StatusType> = {
   low: 'info',
 };
 
-const STATUS_LABELS: Record<Vulnerability['status'], string> = {
+const STATUS_LABELS: Record<WorkflowStatus, string> = {
   new: 'Neu',
   'in-review': 'In Prüfung',
   assigned: 'Zugewiesen',
@@ -68,7 +86,7 @@ const STATUS_LABELS: Record<Vulnerability['status'], string> = {
   accepted: 'Risiko akzeptiert',
 };
 
-const WORKFLOW_STATUS_TYPES: Record<Vulnerability['status'], StatusType> = {
+const WORKFLOW_STATUS_TYPES: Record<WorkflowStatus, StatusType> = {
   new: 'not-started',
   'in-review': 'in-progress',
   assigned: 'pending',
@@ -84,6 +102,17 @@ const SEVERITY_FILTER_OPTIONS: readonly SeverityFilterOption[] = SEVERITY_VALUES
     VULNERABILITY_FIXTURES.filter((vulnerability) => vulnerability.severity === value).length,
   ),
 }));
+
+const STATUS_FILTER_OPTIONS: readonly StatusFilterOption[] = [
+  {
+    value: 'all',
+    label: 'Alle Status',
+  },
+  ...STATUS_VALUES.map((value) => ({
+    value,
+    label: STATUS_LABELS[value],
+  })),
+];
 
 function normalizeSearchValue(value: string): string {
   return value
@@ -121,6 +150,10 @@ function createVulnerabilityListItem(vulnerability: Vulnerability): Vulnerabilit
   };
 }
 
+function isStatusFilter(value: string): value is StatusFilter {
+  return value === 'all' || STATUS_VALUES.some((workflowStatus) => workflowStatus === value);
+}
+
 @Component({
   selector: 'app-triage-inbox',
   imports: [
@@ -132,7 +165,9 @@ function createVulnerabilityListItem(vulnerability: Vulnerability): Vulnerabilit
     SbbFormField,
     SbbFormFieldClear,
     SbbMessage,
+    SbbOption,
     SbbSecondaryButton,
+    SbbSelect,
     SbbStatus,
     SbbTag,
     SbbTagGroup,
@@ -150,21 +185,29 @@ export class TriageInbox {
 
   protected readonly severityOptions = SEVERITY_FILTER_OPTIONS;
 
+  protected readonly statusOptions = STATUS_FILTER_OPTIONS;
+
   protected readonly searchQuery = signal('');
 
   protected readonly selectedSeverities = signal<readonly Severity[]>([]);
+
+  protected readonly selectedStatus = signal<StatusFilter>('all');
 
   protected readonly hasSearchQuery = computed(
     () => normalizeSearchValue(this.searchQuery()).length > 0,
   );
 
   protected readonly hasActiveFilters = computed(
-    () => this.hasSearchQuery() || this.selectedSeverities().length > 0,
+    () =>
+      this.hasSearchQuery() ||
+      this.selectedSeverities().length > 0 ||
+      this.selectedStatus() !== 'all',
   );
 
   protected readonly filteredVulnerabilities = computed(() => {
     const query = normalizeSearchValue(this.searchQuery());
     const selectedSeverities = this.selectedSeverities();
+    const selectedStatus = this.selectedStatus();
 
     return this.vulnerabilities.filter((vulnerability) => {
       const matchesSearch = !query || vulnerability.searchText.includes(query);
@@ -172,7 +215,9 @@ export class TriageInbox {
       const matchesSeverity =
         selectedSeverities.length === 0 || selectedSeverities.includes(vulnerability.severity);
 
-      return matchesSearch && matchesSeverity;
+      const matchesStatus = selectedStatus === 'all' || vulnerability.status === selectedStatus;
+
+      return matchesSearch && matchesSeverity && matchesStatus;
     });
   });
 
@@ -181,6 +226,15 @@ export class TriageInbox {
 
     if (target instanceof HTMLInputElement) {
       this.searchQuery.set(target.value);
+    }
+  }
+
+  protected updateStatusFilter(event: Event): void {
+    const target = event.target as { value?: unknown } | null;
+    const value = target?.value;
+
+    if (typeof value === 'string' && isStatusFilter(value)) {
+      this.selectedStatus.set(value);
     }
   }
 
@@ -199,5 +253,6 @@ export class TriageInbox {
   protected resetFilters(): void {
     this.searchQuery.set('');
     this.selectedSeverities.set([]);
+    this.selectedStatus.set('all');
   }
 }
