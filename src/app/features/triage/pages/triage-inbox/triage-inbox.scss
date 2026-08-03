@@ -42,22 +42,16 @@
 .vulnerability-list {
   display: grid;
   gap: 1rem;
-
-  margin: 1rem 0 0;
-  padding: 0;
-
-  list-style: none;
+  margin-block-start: 1rem;
 }
 
 .vulnerability-item {
+  display: grid;
+  gap: 1rem;
+
   padding: 1.25rem;
   border: 1px solid currentcolor;
   border-radius: 0.25rem;
-}
-
-.vulnerability-item article {
-  display: grid;
-  gap: 1rem;
 }
 
 .vulnerability-header {
@@ -128,6 +122,7 @@
   column-gap: 1.5rem;
   row-gap: 0.5rem;
   align-items: start;
+  margin: 0;
 }
 
 .risk-signal dt,

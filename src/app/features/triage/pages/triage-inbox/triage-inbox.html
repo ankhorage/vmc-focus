@@ -13,7 +13,6 @@
         type="text"
         enterkeyhint="search"
         autocomplete="off"
-        autocapitalize="off"
         spellcheck="false"
         placeholder="CVE, Titel, Team oder Risikosignal"
         [value]="searchQuery()"
@@ -41,89 +40,87 @@
     </header>
 
     @if (filteredVulnerabilities().length > 0) {
-      <ul class="vulnerability-list">
+      <div class="vulnerability-list" role="list">
         @for (vulnerability of filteredVulnerabilities(); track vulnerability.id) {
-          <li class="vulnerability-item">
-            <article>
-              <header class="vulnerability-header">
-                <div>
-                  <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
-                  <h3>{{ vulnerability.title }}</h3>
-                </div>
+          <article class="vulnerability-item" role="listitem">
+            <header class="vulnerability-header">
+              <div>
+                <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
+                <h3>{{ vulnerability.title }}</h3>
+              </div>
 
-                <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
-                  {{ vulnerability.severityLabel }}
-                </sbb-status>
-              </header>
+              <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
+                {{ vulnerability.severityLabel }}
+              </sbb-status>
+            </header>
 
-              <p>{{ vulnerability.summary }}</p>
+            <p>{{ vulnerability.summary }}</p>
 
-              <dl class="metadata">
-                <div>
-                  <dt>CVSS</dt>
-                  <dd>{{ vulnerability.cvssScore }}</dd>
-                </div>
+            <dl class="metadata">
+              <div>
+                <dt>CVSS</dt>
+                <dd>{{ vulnerability.cvssScore }}</dd>
+              </div>
 
-                <div>
-                  <dt>EPSS</dt>
-                  <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
-                </div>
+              <div>
+                <dt>EPSS</dt>
+                <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
+              </div>
 
-                <div>
-                  <dt>Status</dt>
-                  <dd>
-                    <sbb-status [type]="vulnerability.workflowStatusType">
-                      {{ vulnerability.statusLabel }}
-                    </sbb-status>
-                  </dd>
-                </div>
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  <sbb-status [type]="vulnerability.workflowStatusType">
+                    {{ vulnerability.statusLabel }}
+                  </sbb-status>
+                </dd>
+              </div>
 
-                <div>
-                  <dt>Verantwortlich</dt>
-                  <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
-                </div>
-              </dl>
+              <div>
+                <dt>Verantwortlich</dt>
+                <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
+              </div>
+            </dl>
 
-              @if (vulnerability.riskSignals.length > 0) {
-                <sbb-expansion-panel
-                  class="risk-signals"
-                  color="milk"
-                  size="s"
-                  titleLevel="4"
-                  [borderless]="true"
-                >
-                  <sbb-expansion-panel-header>
-                    <span class="risk-signals__header">
-                      <span>Warum priorisiert?</span>
+            @if (vulnerability.riskSignals.length > 0) {
+              <sbb-expansion-panel
+                class="risk-signals"
+                color="milk"
+                size="s"
+                titleLevel="4"
+                [borderless]="true"
+              >
+                <sbb-expansion-panel-header>
+                  <span class="risk-signals__header">
+                    <span>Warum priorisiert?</span>
 
-                      <span class="risk-signal-count">
-                        {{ vulnerability.riskSignals.length }}
-                        {{ vulnerability.riskSignals.length === 1 ? 'Signal' : 'Signale' }}
-                      </span>
+                    <span class="risk-signal-count">
+                      {{ vulnerability.riskSignals.length }}
+                      {{ vulnerability.riskSignals.length === 1 ? 'Signal' : 'Signale' }}
                     </span>
-                  </sbb-expansion-panel-header>
+                  </span>
+                </sbb-expansion-panel-header>
 
-                  <sbb-expansion-panel-content>
-                    <dl class="risk-signal-list">
-                      @for (signal of vulnerability.riskSignals; track signal.id) {
-                        <div class="risk-signal">
-                          <dt>
-                            <sbb-chip-label size="xs" color="milk">
-                              {{ signal.label }}
-                            </sbb-chip-label>
-                          </dt>
+                <sbb-expansion-panel-content>
+                  <div class="risk-signal-list">
+                    @for (signal of vulnerability.riskSignals; track signal.id) {
+                      <dl class="risk-signal">
+                        <dt>
+                          <sbb-chip-label size="xs" color="milk">
+                            {{ signal.label }}
+                          </sbb-chip-label>
+                        </dt>
 
-                          <dd>{{ signal.explanation }}</dd>
-                        </div>
-                      }
-                    </dl>
-                  </sbb-expansion-panel-content>
-                </sbb-expansion-panel>
-              }
-            </article>
-          </li>
+                        <dd>{{ signal.explanation }}</dd>
+                      </dl>
+                    }
+                  </div>
+                </sbb-expansion-panel-content>
+              </sbb-expansion-panel>
+            }
+          </article>
         }
-      </ul>
+      </div>
     } @else {
       <sbb-message class="empty-state">
         <sbb-title slot="title" level="3">Keine Schwachstellen gefunden</sbb-title>
