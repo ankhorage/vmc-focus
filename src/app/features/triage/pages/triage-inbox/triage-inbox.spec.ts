@@ -37,6 +37,20 @@ describe('TriageInbox', () => {
                 }
               </select>
 
+              <label for="sort">Sortierung</label>
+
+              <select
+                id="sort"
+                [value]="selectedSort()"
+                (change)="updateSortOrder($event)"
+              >
+                @for (option of sortOptions; track option.value) {
+                  <option [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+
               <button
                 class="clear-search"
                 type="button"
@@ -71,11 +85,11 @@ describe('TriageInbox', () => {
               </button>
 
               <p class="result-count">
-                {{ filteredVulnerabilities().length }}
+                {{ visibleVulnerabilities().length }}
               </p>
 
               @for (
-                vulnerability of filteredVulnerabilities();
+                vulnerability of visibleVulnerabilities();
                 track vulnerability.id
               ) {
                 <article
@@ -124,7 +138,7 @@ describe('TriageInbox', () => {
                 </article>
               }
 
-              @if (filteredVulnerabilities().length === 0) {
+              @if (visibleVulnerabilities().length === 0) {
                 <p class="empty-state">
                   Keine Schwachstellen gefunden
                 </p>
@@ -271,6 +285,27 @@ describe('TriageInbox', () => {
     );
   });
 
+  it('should sort vulnerabilities by ascending CVSS score', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const sortSelect = compiled.querySelector<HTMLSelectElement>('#sort');
+
+    expect(sortSelect).not.toBeNull();
+
+    sortSelect!.value = 'cvss-asc';
+    sortSelect!.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const titles = Array.from(compiled.querySelectorAll<HTMLElement>('.vulnerability h2')).map(
+      (title) => title.textContent?.trim(),
+    );
+
+    expect(titles).toEqual([
+      'Offenlegung von Informationen in der Berichtskomponente',
+      'Rechteausweitung im Identitätsdienst',
+      'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
+    ]);
+  });
+
   it('should combine search, severity, and status filters', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
@@ -321,12 +356,14 @@ describe('TriageInbox', () => {
     expect(compiled.textContent).toContain('Keine Schwachstellen gefunden');
   });
 
-  it('should reset all filters together', () => {
+  it('should reset filters without changing the sort order', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     const criticalFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="critical"]');
 
     const statusSelect = compiled.querySelector<HTMLSelectElement>('#status');
+
+    const sortSelect = compiled.querySelector<HTMLSelectElement>('#sort');
 
     const searchInput = compiled.querySelector<HTMLInputElement>('#search');
 
@@ -334,6 +371,7 @@ describe('TriageInbox', () => {
 
     expect(criticalFilter).not.toBeNull();
     expect(statusSelect).not.toBeNull();
+    expect(sortSelect).not.toBeNull();
     expect(searchInput).not.toBeNull();
     expect(resetButton).not.toBeNull();
 
@@ -341,6 +379,9 @@ describe('TriageInbox', () => {
 
     statusSelect!.value = 'assigned';
     statusSelect!.dispatchEvent(new Event('change'));
+
+    sortSelect!.value = 'cvss-asc';
+    sortSelect!.dispatchEvent(new Event('change'));
 
     searchInput!.value = 'nicht vorhandene schwachstelle';
     searchInput!.dispatchEvent(new Event('input'));
@@ -354,6 +395,7 @@ describe('TriageInbox', () => {
 
     expect(searchInput!.value).toBe('');
     expect(statusSelect!.value).toBe('all');
+    expect(sortSelect!.value).toBe('cvss-asc');
     expect(criticalFilter!.getAttribute('aria-pressed')).toBe('false');
 
     expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(3);

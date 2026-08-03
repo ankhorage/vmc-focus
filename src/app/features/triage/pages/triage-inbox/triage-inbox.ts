@@ -23,6 +23,8 @@ type Severity = Vulnerability['severity'];
 type WorkflowStatus = Vulnerability['status'];
 type StatusFilter = WorkflowStatus | 'all';
 
+type SortOrder = 'priority' | 'cvss-desc' | 'cvss-asc' | 'epss-desc' | 'due-asc';
+
 type StatusType =
   | 'info'
   | 'success'
@@ -44,6 +46,11 @@ interface StatusFilterOption {
   readonly label: string;
 }
 
+interface SortOption {
+  readonly value: SortOrder;
+  readonly label: string;
+}
+
 interface VulnerabilityListItem extends Vulnerability {
   readonly severityLabel: string;
   readonly severityStatusType: StatusType;
@@ -61,6 +68,14 @@ const STATUS_VALUES: readonly WorkflowStatus[] = [
   'in-remediation',
   'resolved',
   'accepted',
+];
+
+const SORT_ORDER_VALUES: readonly SortOrder[] = [
+  'priority',
+  'cvss-desc',
+  'cvss-asc',
+  'epss-desc',
+  'due-asc',
 ];
 
 const SEVERITY_LABELS: Record<Severity, string> = {
@@ -95,6 +110,20 @@ const WORKFLOW_STATUS_TYPES: Record<WorkflowStatus, StatusType> = {
   accepted: 'info',
 };
 
+const SEVERITY_PRIORITY: Record<Severity, number> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+const URGENCY_PRIORITY: Record<Vulnerability['urgency'], number> = {
+  immediate: 4,
+  urgent: 3,
+  planned: 2,
+  monitor: 1,
+};
+
 const SEVERITY_FILTER_OPTIONS: readonly SeverityFilterOption[] = SEVERITY_VALUES.map((value) => ({
   value,
   label: SEVERITY_LABELS[value],
@@ -106,12 +135,35 @@ const SEVERITY_FILTER_OPTIONS: readonly SeverityFilterOption[] = SEVERITY_VALUES
 const STATUS_FILTER_OPTIONS: readonly StatusFilterOption[] = [
   {
     value: 'all',
-    label: 'Alle Status',
+    label: 'Alle',
   },
   ...STATUS_VALUES.map((value) => ({
     value,
     label: STATUS_LABELS[value],
   })),
+];
+
+const SORT_OPTIONS: readonly SortOption[] = [
+  {
+    value: 'priority',
+    label: 'Priorität',
+  },
+  {
+    value: 'cvss-desc',
+    label: 'CVSS – höchste zuerst',
+  },
+  {
+    value: 'cvss-asc',
+    label: 'CVSS – niedrigste zuerst',
+  },
+  {
+    value: 'epss-desc',
+    label: 'EPSS – höchste zuerst',
+  },
+  {
+    value: 'due-asc',
+    label: 'Frist – nächste zuerst',
+  },
 ];
 
 function normalizeSearchValue(value: string): string {
@@ -150,8 +202,85 @@ function createVulnerabilityListItem(vulnerability: Vulnerability): Vulnerabilit
   };
 }
 
+function getControlValue(event: Event): string | null {
+  const target = event.target as { value?: unknown } | null;
+  const value = target?.value;
+
+  return typeof value === 'string' ? value : null;
+}
+
 function isStatusFilter(value: string): value is StatusFilter {
   return value === 'all' || STATUS_VALUES.some((workflowStatus) => workflowStatus === value);
+}
+
+function isSortOrder(value: string): value is SortOrder {
+  return SORT_ORDER_VALUES.some((sortOrder) => sortOrder === value);
+}
+
+function comparePriority(first: VulnerabilityListItem, second: VulnerabilityListItem): number {
+  const urgencyDifference = URGENCY_PRIORITY[second.urgency] - URGENCY_PRIORITY[first.urgency];
+
+  if (urgencyDifference !== 0) {
+    return urgencyDifference;
+  }
+
+  const knownExploitedDifference = Number(second.knownExploited) - Number(first.knownExploited);
+
+  if (knownExploitedDifference !== 0) {
+    return knownExploitedDifference;
+  }
+
+  const severityDifference = SEVERITY_PRIORITY[second.severity] - SEVERITY_PRIORITY[first.severity];
+
+  if (severityDifference !== 0) {
+    return severityDifference;
+  }
+
+  const epssDifference = second.epssProbability - first.epssProbability;
+
+  if (epssDifference !== 0) {
+    return epssDifference;
+  }
+
+  const deadlineDifference =
+    Date.parse(first.remediationDueAt) - Date.parse(second.remediationDueAt);
+
+  if (deadlineDifference !== 0) {
+    return deadlineDifference;
+  }
+
+  return first.cveId.localeCompare(second.cveId);
+}
+
+function sortVulnerabilities(
+  vulnerabilities: readonly VulnerabilityListItem[],
+  sortOrder: SortOrder,
+): readonly VulnerabilityListItem[] {
+  const sortedVulnerabilities = [...vulnerabilities];
+
+  sortedVulnerabilities.sort((first, second) => {
+    switch (sortOrder) {
+      case 'cvss-desc':
+        return second.cvssScore - first.cvssScore || comparePriority(first, second);
+
+      case 'cvss-asc':
+        return first.cvssScore - second.cvssScore || comparePriority(first, second);
+
+      case 'epss-desc':
+        return second.epssProbability - first.epssProbability || comparePriority(first, second);
+
+      case 'due-asc':
+        return (
+          Date.parse(first.remediationDueAt) - Date.parse(second.remediationDueAt) ||
+          comparePriority(first, second)
+        );
+
+      case 'priority':
+        return comparePriority(first, second);
+    }
+  });
+
+  return sortedVulnerabilities;
 }
 
 @Component({
@@ -187,11 +316,15 @@ export class TriageInbox {
 
   protected readonly statusOptions = STATUS_FILTER_OPTIONS;
 
+  protected readonly sortOptions = SORT_OPTIONS;
+
   protected readonly searchQuery = signal('');
 
   protected readonly selectedSeverities = signal<readonly Severity[]>([]);
 
   protected readonly selectedStatus = signal<StatusFilter>('all');
+
+  protected readonly selectedSort = signal<SortOrder>('priority');
 
   protected readonly hasSearchQuery = computed(
     () => normalizeSearchValue(this.searchQuery()).length > 0,
@@ -221,6 +354,10 @@ export class TriageInbox {
     });
   });
 
+  protected readonly visibleVulnerabilities = computed(() =>
+    sortVulnerabilities(this.filteredVulnerabilities(), this.selectedSort()),
+  );
+
   protected updateSearchQuery(event: Event): void {
     const target = event.target;
 
@@ -230,11 +367,18 @@ export class TriageInbox {
   }
 
   protected updateStatusFilter(event: Event): void {
-    const target = event.target as { value?: unknown } | null;
-    const value = target?.value;
+    const value = getControlValue(event);
 
-    if (typeof value === 'string' && isStatusFilter(value)) {
+    if (value && isStatusFilter(value)) {
       this.selectedStatus.set(value);
+    }
+  }
+
+  protected updateSortOrder(event: Event): void {
+    const value = getControlValue(event);
+
+    if (value && isSortOrder(value)) {
+      this.selectedSort.set(value);
     }
   }
 

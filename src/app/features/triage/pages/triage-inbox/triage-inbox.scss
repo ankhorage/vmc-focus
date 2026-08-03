@@ -9,9 +9,20 @@
 }
 
 .page-header,
-.section-header {
+.section-header__copy {
   display: grid;
   gap: 0.5rem;
+}
+
+.section-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.section-header__copy {
+  min-width: 0;
 }
 
 .page-header h1,
@@ -68,21 +79,28 @@
 
 .filter-primary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  grid-template-columns: minmax(18rem, 1fr) minmax(14rem, 18rem);
   gap: 1.5rem;
   align-items: end;
 }
 
 .search-control,
 .status-control,
+.sort-control,
 .severity-filter {
   min-width: 0;
 }
 
 .search-field,
-.status-field {
+.status-field,
+.sort-field {
   width: 100%;
   min-width: 0;
+}
+
+.sort-control {
+  width: min(100%, 20rem);
+  flex-shrink: 0;
 }
 
 .severity-filter {
@@ -273,13 +291,18 @@
     padding-block: 1.5rem 2rem;
   }
 
-  .filter-card__header {
+  .filter-card__header,
+  .section-header {
     display: grid;
   }
 
   .filter-card__header sbb-transparent-button {
     justify-self: start;
     margin-inline-start: 0;
+  }
+
+  .sort-control {
+    width: 100%;
   }
 
   .vulnerability-card__content {

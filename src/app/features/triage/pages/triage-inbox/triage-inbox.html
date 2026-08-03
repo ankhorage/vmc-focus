@@ -94,23 +94,42 @@
 
   <section aria-labelledby="vulnerability-list-title">
     <header class="section-header">
-      <div>
+      <div class="section-header__copy">
         <h2 id="vulnerability-list-title">Offene Schwachstellen</h2>
 
         <p aria-live="polite">
           @if (hasActiveFilters()) {
-            {{ filteredVulnerabilities().length }} von {{ vulnerabilities.length }} Einträgen
+            {{ visibleVulnerabilities().length }} von {{ vulnerabilities.length }} Einträgen
             angezeigt.
           } @else {
             {{ vulnerabilities.length }} Einträge benötigen eine Beurteilung.
           }
         </p>
       </div>
+
+      <div class="sort-control">
+        <sbb-form-field class="sort-field" size="s">
+          <label for="vulnerability-sort">Sortieren nach</label>
+
+          <sbb-select
+            id="vulnerability-sort"
+            aria-label="Schwachstellen sortieren"
+            [value]="selectedSort()"
+            (change)="updateSortOrder($event)"
+          >
+            @for (option of sortOptions; track option.value) {
+              <sbb-option [value]="option.value">
+                {{ option.label }}
+              </sbb-option>
+            }
+          </sbb-select>
+        </sbb-form-field>
+      </div>
     </header>
 
-    @if (filteredVulnerabilities().length > 0) {
+    @if (visibleVulnerabilities().length > 0) {
       <div class="vulnerability-list" role="list">
-        @for (vulnerability of filteredVulnerabilities(); track vulnerability.id) {
+        @for (vulnerability of visibleVulnerabilities(); track vulnerability.id) {
           <article class="vulnerability-list-item" role="listitem">
             <sbb-card class="vulnerability-card sbb-card-spacing-s" color="white">
               <div class="vulnerability-card__content">
