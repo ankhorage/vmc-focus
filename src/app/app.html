@@ -9,11 +9,7 @@
     Menü
   </sbb-header-button>
 
-  <a
-    class="brand"
-    routerLink="/triage"
-    aria-label="VMC Focus – Triage-Posteingang"
-  >
+  <a class="brand" routerLink="/triage" aria-label="VMC Focus – Triage-Posteingang">
     <span class="brand__name">VMC Focus</span>
     <span class="brand__section">Schwachstellenmanagement</span>
   </a>
@@ -30,9 +26,7 @@
     [opened]="sidebarOpened()"
     (close)="closeMobileNavigation()"
   >
-    <sbb-sidebar-title level="2" visualLevel="5">
-      Navigation
-    </sbb-sidebar-title>
+    <sbb-sidebar-title level="2" visualLevel="5"> Navigation </sbb-sidebar-title>
 
     <nav class="primary-navigation" aria-label="Hauptnavigation">
       <a
@@ -48,12 +42,7 @@
   </sbb-sidebar>
 
   <sbb-sidebar-content>
-    <sbb-container
-      class="app-content"
-      [expanded]="true"
-      [backgroundExpanded]="true"
-      color="milk"
-    >
+    <sbb-container class="app-content" [expanded]="true" [backgroundExpanded]="true" color="milk">
       <router-outlet />
     </sbb-container>
   </sbb-sidebar-content>

@@ -39,17 +39,17 @@ VMC Focus helps users answer three questions:
 
 ## Technology
 
-| Area | Technology |
-| --- | --- |
-| Frontend | Angular 22 |
-| Language | TypeScript |
-| Design system | SBB Lyne Angular |
-| Theme | Lean Safety |
-| Styling | SCSS and Lyne design tokens |
-| Testing | Vitest through the Angular test runner |
-| Backend | Planned PHP REST API |
-| API contract | Planned OpenAPI specification |
-| Design | Planned Figma case study |
+| Area          | Technology                             |
+| ------------- | -------------------------------------- |
+| Frontend      | Angular 22                             |
+| Language      | TypeScript                             |
+| Design system | SBB Lyne Angular                       |
+| Theme         | Lean Safety                            |
+| Styling       | SCSS and Lyne design tokens            |
+| Testing       | Vitest through the Angular test runner |
+| Backend       | Planned PHP REST API                   |
+| API contract  | Planned OpenAPI specification          |
+| Design        | Planned Figma case study               |
 
 ## Language convention
 
@@ -92,11 +92,11 @@ http://localhost:4200/triage
 
 ## Available scripts
 
-| Command | Description |
-| --- | --- |
-| `npm start` | Starts the Angular development server. |
-| `npm run build` | Creates a production build. |
-| `npm test -- --watch=false` | Runs all tests once and exits. |
+| Command                     | Description                            |
+| --------------------------- | -------------------------------------- |
+| `npm start`                 | Starts the Angular development server. |
+| `npm run build`             | Creates a production build.            |
+| `npm test -- --watch=false` | Runs all tests once and exits.         |
 
 ## Lyne development helpers
 

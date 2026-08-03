@@ -6,11 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import {
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { SbbContainerModule } from '@sbb-esta/lyne-angular/container';
 import { SbbHeaderModule } from '@sbb-esta/lyne-angular/header';
@@ -42,14 +38,11 @@ export class App {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly mobileMediaQuery =
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function'
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
       ? window.matchMedia('(width < 48rem)')
       : null;
 
-  protected readonly isMobile = signal(
-    this.mobileMediaQuery?.matches ?? false,
-  );
+  protected readonly isMobile = signal(this.mobileMediaQuery?.matches ?? false);
 
   protected readonly mobileNavigationOpen = signal(false);
 
