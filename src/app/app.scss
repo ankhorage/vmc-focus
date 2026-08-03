@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app {
+  display: grid;
+  gap: 1rem;
+  align-content: center;
+  justify-items: start;
+
+  min-height: 100vh;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: 2rem;
+}
