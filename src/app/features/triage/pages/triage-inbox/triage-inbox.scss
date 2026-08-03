@@ -4,22 +4,105 @@
 }
 
 .triage-inbox {
+  display: grid;
+  gap: 2rem;
+
   max-width: 90rem;
   margin-inline: auto;
   padding: 2rem;
 }
 
-header {
+.page-header,
+.section-header {
   display: grid;
   gap: 0.5rem;
 }
 
-.eyebrow {
+.eyebrow,
+.page-header h1,
+.page-header p,
+.section-header h2,
+.section-header p,
+.vulnerability-id,
+.vulnerability-header h3,
+.vulnerability-item p,
+.metadata {
+  margin: 0;
+}
+
+.eyebrow,
+.vulnerability-id {
+  font-weight: 700;
+}
+
+.vulnerability-list {
+  display: grid;
+  gap: 1rem;
+
+  margin: 1rem 0 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.vulnerability-item {
+  padding: 1.25rem;
+  border: 1px solid currentcolor;
+  border-radius: 0.25rem;
+}
+
+.vulnerability-item article {
+  display: grid;
+  gap: 1rem;
+}
+
+.vulnerability-header {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.vulnerability-header > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.severity {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.metadata {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.metadata div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.metadata dt {
+  font-size: 0.875rem;
+}
+
+.metadata dd {
   margin: 0;
   font-weight: 700;
 }
 
-h1,
-header > p {
-  margin: 0;
+@media (width < 48rem) {
+  .triage-inbox {
+    padding: 1rem;
+  }
+
+  .vulnerability-header {
+    display: grid;
+  }
+
+  .metadata {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

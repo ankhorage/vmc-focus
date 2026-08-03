@@ -1,9 +1,61 @@
 <main class="triage-inbox">
-  <header>
-    <p class="eyebrow">Vulnerability Management</p>
-    <h1>Triage Inbox</h1>
+  <header class="page-header">
+    <p class="eyebrow">Schwachstellenmanagement</p>
+    <h1>Triage-Posteingang</h1>
     <p>
       Priorisierte Schwachstellen und die nächsten erforderlichen Massnahmen.
     </p>
   </header>
+
+  <section aria-labelledby="vulnerability-list-title">
+    <header class="section-header">
+      <div>
+        <h2 id="vulnerability-list-title">Offene Schwachstellen</h2>
+        <p>{{ vulnerabilities.length }} Einträge benötigen eine Beurteilung.</p>
+      </div>
+    </header>
+
+    <ul class="vulnerability-list">
+      @for (vulnerability of vulnerabilities; track vulnerability.id) {
+        <li class="vulnerability-item">
+          <article>
+            <header class="vulnerability-header">
+              <div>
+                <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
+                <h3>{{ vulnerability.title }}</h3>
+              </div>
+
+              <span class="severity">
+                {{ vulnerability.severity }}
+              </span>
+            </header>
+
+            <p>{{ vulnerability.summary }}</p>
+
+            <dl class="metadata">
+              <div>
+                <dt>CVSS</dt>
+                <dd>{{ vulnerability.cvssScore }}</dd>
+              </div>
+
+              <div>
+                <dt>EPSS</dt>
+                <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
+              </div>
+
+              <div>
+                <dt>Status</dt>
+                <dd>{{ vulnerability.status }}</dd>
+              </div>
+
+              <div>
+                <dt>Verantwortlich</dt>
+                <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
+              </div>
+            </dl>
+          </article>
+        </li>
+      }
+    </ul>
+  </section>
 </main>

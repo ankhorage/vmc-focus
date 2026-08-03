@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'triage',
-    title: 'Triage Inbox | VMC Focus',
+    title: 'Triage-Posteingang | VMC Focus',
     loadComponent: () =>
       import('./features/triage/pages/triage-inbox/triage-inbox').then(
         (module) => module.TriageInbox,
