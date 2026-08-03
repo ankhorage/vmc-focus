@@ -1,6 +1,5 @@
 <main class="triage-inbox">
   <header class="page-header">
-    <p class="eyebrow">Schwachstellenmanagement</p>
     <h1>Triage-Posteingang</h1>
     <p>Priorisierte Schwachstellen und die nächsten erforderlichen Massnahmen.</p>
   </header>
@@ -11,8 +10,11 @@
 
       <input
         id="vulnerability-search"
-        type="search"
+        type="text"
+        enterkeyhint="search"
         autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
         placeholder="CVE, Titel, Team oder Risikosignal"
         [value]="searchQuery()"
         (input)="updateSearchQuery($event)"
@@ -124,7 +126,7 @@
       </ul>
     } @else {
       <sbb-message class="empty-state">
-        <sbb-title slot="title" level="3"> Keine Schwachstellen gefunden </sbb-title>
+        <sbb-title slot="title" level="3">Keine Schwachstellen gefunden</sbb-title>
 
         <p slot="subtitle">Für «{{ searchQuery() }}» gibt es keine passenden Einträge.</p>
 

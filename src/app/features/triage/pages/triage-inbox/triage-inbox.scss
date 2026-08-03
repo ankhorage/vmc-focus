@@ -5,6 +5,7 @@
 .triage-inbox {
   display: grid;
   gap: 2rem;
+  padding-block: 2rem 3rem;
 }
 
 .page-header,
@@ -13,7 +14,6 @@
   gap: 0.5rem;
 }
 
-.eyebrow,
 .page-header h1,
 .page-header p,
 .section-header h2,
@@ -26,7 +26,6 @@
   margin: 0;
 }
 
-.eyebrow,
 .vulnerability-id {
   font-weight: 700;
 }
@@ -38,14 +37,6 @@
 .search-field {
   width: min(100%, 32rem);
   min-width: 0;
-}
-
-.search-field input[type='search']::-webkit-search-cancel-button {
-  appearance: none;
-}
-
-.search-field input[type='search']::-ms-clear {
-  display: none;
 }
 
 .vulnerability-list {
@@ -161,6 +152,10 @@
 }
 
 @media (width < 48rem) {
+  .triage-inbox {
+    padding-block: 1.5rem 2rem;
+  }
+
   .vulnerability-header {
     display: grid;
   }
