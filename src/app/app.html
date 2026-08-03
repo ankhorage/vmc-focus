@@ -1,4 +1,14 @@
 <sbb-header [expanded]="true" size="s">
+  <sbb-header-button
+    class="mobile-navigation-trigger"
+    type="button"
+    aria-controls="primary-navigation"
+    [attr.aria-expanded]="mobileNavigationOpen()"
+    (click)="openMobileNavigation()"
+  >
+    Menü
+  </sbb-header-button>
+
   <a
     class="brand"
     routerLink="/triage"
@@ -13,10 +23,12 @@
 
 <sbb-sidebar-container class="app-layout">
   <sbb-sidebar
+    id="primary-navigation"
     color="white"
-    mode="side"
     position="start"
-    [opened]="true"
+    [mode]="sidebarMode()"
+    [opened]="sidebarOpened()"
+    (close)="closeMobileNavigation()"
   >
     <sbb-sidebar-title level="2" visualLevel="5">
       Navigation
@@ -28,6 +40,7 @@
         routerLink="/triage"
         routerLinkActive="primary-navigation__link--active"
         ariaCurrentWhenActive="page"
+        (click)="closeMobileNavigation()"
       >
         Triage-Posteingang
       </a>

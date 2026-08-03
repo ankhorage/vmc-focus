@@ -61,3 +61,17 @@
   border-inline-start-color: currentcolor;
   font-weight: 700;
 }
+
+.mobile-navigation-trigger {
+  display: none;
+}
+
+@media (width < 48rem) {
+  .mobile-navigation-trigger {
+    display: inline-flex;
+  }
+
+  .brand__section {
+    display: none;
+  }
+}
