@@ -4,24 +4,72 @@
     <p>Priorisierte Schwachstellen und die nächsten erforderlichen Massnahmen.</p>
   </header>
 
-  <div class="search-controls" role="search" aria-label="Schwachstellen durchsuchen">
-    <sbb-form-field class="search-field" size="s" [hiddenLabel]="true">
-      <label for="vulnerability-search">Schwachstellen durchsuchen</label>
+  <section class="filter-panel" aria-labelledby="filter-panel-title">
+    <sbb-card class="filter-card sbb-card-spacing-xxs" color="white">
+      <div class="filter-card__content">
+        <header class="filter-card__header">
+          <div>
+            <sbb-title id="filter-panel-title" class="filter-title" level="2" visualLevel="5">
+              Ansicht eingrenzen
+            </sbb-title>
 
-      <input
-        id="vulnerability-search"
-        type="text"
-        enterkeyhint="search"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="CVE, Titel, Team oder Risikosignal"
-        [value]="searchQuery()"
-        (input)="updateSearchQuery($event)"
-      />
+            <p>Suche und Schweregrad können kombiniert werden.</p>
+          </div>
 
-      <sbb-form-field-clear (click)="clearSearch()"></sbb-form-field-clear>
-    </sbb-form-field>
-  </div>
+          <sbb-transparent-button
+            size="s"
+            type="button"
+            [disabled]="!hasActiveFilters()"
+            (click)="resetFilters()"
+          >
+            Filter zurücksetzen
+          </sbb-transparent-button>
+        </header>
+
+        <div class="filter-grid">
+          <div class="search-control" role="search" aria-label="Schwachstellen durchsuchen">
+            <sbb-form-field class="search-field" size="s">
+              <label for="vulnerability-search">Suche</label>
+
+              <input
+                id="vulnerability-search"
+                type="text"
+                enterkeyhint="search"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="CVE, Titel, Team oder Risikosignal"
+                [value]="searchQuery()"
+                (input)="updateSearchQuery($event)"
+              />
+
+              <sbb-form-field-clear (click)="clearSearch()"></sbb-form-field-clear>
+            </sbb-form-field>
+          </div>
+
+          <div class="severity-filter">
+            <p class="filter-label">Schweregrad</p>
+
+            <sbb-tag-group
+              multiple
+              size="s"
+              accessibilityLabel="Schwachstellen nach Schweregrad filtern"
+            >
+              @for (option of severityOptions; track option.value) {
+                <sbb-tag
+                  [value]="option.value"
+                  [amount]="option.amount"
+                  [checked]="selectedSeverities().includes(option.value)"
+                  (change)="toggleSeverity(option.value)"
+                >
+                  {{ option.label }}
+                </sbb-tag>
+              }
+            </sbb-tag-group>
+          </div>
+        </div>
+      </div>
+    </sbb-card>
+  </section>
 
   <section aria-labelledby="vulnerability-list-title">
     <header class="section-header">
@@ -29,9 +77,9 @@
         <h2 id="vulnerability-list-title">Offene Schwachstellen</h2>
 
         <p aria-live="polite">
-          @if (hasSearchQuery()) {
+          @if (hasActiveFilters()) {
             {{ filteredVulnerabilities().length }} von {{ vulnerabilities.length }} Einträgen
-            gefunden.
+            angezeigt.
           } @else {
             {{ vulnerabilities.length }} Einträge benötigen eine Beurteilung.
           }
@@ -45,44 +93,62 @@
           <article class="vulnerability-list-item" role="listitem">
             <sbb-card class="vulnerability-card sbb-card-spacing-s" color="white">
               <div class="vulnerability-card__content">
-                <header class="vulnerability-header">
-                  <div>
-                    <p class="vulnerability-id">{{ vulnerability.cveId }}</p>
-                    <h3>{{ vulnerability.title }}</h3>
+                <div class="vulnerability-overview">
+                  <div class="vulnerability-main">
+                    <header class="vulnerability-header">
+                      <div class="vulnerability-reference">
+                        <p class="vulnerability-id">
+                          {{ vulnerability.cveId }}
+                        </p>
+
+                        <sbb-status
+                          class="severity-status"
+                          [type]="vulnerability.severityStatusType"
+                        >
+                          {{ vulnerability.severityLabel }}
+                        </sbb-status>
+                      </div>
+
+                      <h3>{{ vulnerability.title }}</h3>
+                    </header>
+
+                    <p class="vulnerability-summary">
+                      {{ vulnerability.summary }}
+                    </p>
                   </div>
 
-                  <sbb-status class="severity-status" [type]="vulnerability.severityStatusType">
-                    {{ vulnerability.severityLabel }}
-                  </sbb-status>
-                </header>
+                  <section class="vulnerability-facts" aria-label="Kennzahlen und Zuständigkeit">
+                    <sbb-card class="facts-card sbb-card-spacing-xxs" color="milk">
+                      <dl class="metadata">
+                        <div>
+                          <dt>CVSS</dt>
+                          <dd>{{ vulnerability.cvssScore }}</dd>
+                        </div>
 
-                <p>{{ vulnerability.summary }}</p>
+                        <div>
+                          <dt>EPSS</dt>
+                          <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
+                        </div>
 
-                <dl class="metadata">
-                  <div>
-                    <dt>CVSS</dt>
-                    <dd>{{ vulnerability.cvssScore }}</dd>
-                  </div>
+                        <div class="metadata__wide">
+                          <dt>Status</dt>
+                          <dd>
+                            <sbb-status [type]="vulnerability.workflowStatusType">
+                              {{ vulnerability.statusLabel }}
+                            </sbb-status>
+                          </dd>
+                        </div>
 
-                  <div>
-                    <dt>EPSS</dt>
-                    <dd>{{ vulnerability.epssProbability * 100 }} %</dd>
-                  </div>
-
-                  <div>
-                    <dt>Status</dt>
-                    <dd>
-                      <sbb-status [type]="vulnerability.workflowStatusType">
-                        {{ vulnerability.statusLabel }}
-                      </sbb-status>
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt>Verantwortlich</dt>
-                    <dd>{{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}</dd>
-                  </div>
-                </dl>
+                        <div class="metadata__wide">
+                          <dt>Verantwortlich</dt>
+                          <dd>
+                            {{ vulnerability.owner?.team ?? 'Noch nicht zugewiesen' }}
+                          </dd>
+                        </div>
+                      </dl>
+                    </sbb-card>
+                  </section>
+                </div>
 
                 @if (vulnerability.riskSignals.length > 0) {
                   <sbb-expansion-panel
@@ -105,15 +171,15 @@
 
                     <sbb-expansion-panel-content>
                       <div class="risk-signal-list">
-                        @for (signal of vulnerability.riskSignals; track signal.id) {
+                        @for (riskSignal of vulnerability.riskSignals; track riskSignal.id) {
                           <dl class="risk-signal">
                             <dt>
                               <sbb-chip-label size="xs" color="milk">
-                                {{ signal.label }}
+                                {{ riskSignal.label }}
                               </sbb-chip-label>
                             </dt>
 
-                            <dd>{{ signal.explanation }}</dd>
+                            <dd>{{ riskSignal.explanation }}</dd>
                           </dl>
                         }
                       </div>
@@ -127,12 +193,14 @@
       </div>
     } @else {
       <sbb-message class="empty-state">
-        <sbb-title slot="title" level="3">Keine Schwachstellen gefunden</sbb-title>
+        <sbb-title slot="title" level="3"> Keine Schwachstellen gefunden </sbb-title>
 
-        <p slot="subtitle">Für «{{ searchQuery() }}» gibt es keine passenden Einträge.</p>
+        <p slot="subtitle">
+          Für die aktuelle Suche und Filterauswahl gibt es keine passenden Einträge.
+        </p>
 
-        <sbb-secondary-button slot="action" size="s" type="button" (click)="clearSearch()">
-          Suche zurücksetzen
+        <sbb-secondary-button slot="action" size="s" type="button" (click)="resetFilters()">
+          Alle Filter zurücksetzen
         </sbb-secondary-button>
       </sbb-message>
     }

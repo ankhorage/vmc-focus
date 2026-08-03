@@ -28,7 +28,32 @@ describe('TriageInbox', () => {
                 type="button"
                 (click)="clearSearch()"
               >
-                Suche zurücksetzen
+                Suche leeren
+              </button>
+
+              <div class="severity-filters">
+                @for (option of severityOptions; track option.value) {
+                  <button
+                    class="severity-filter"
+                    type="button"
+                    [attr.data-severity]="option.value"
+                    [attr.data-amount]="option.amount"
+                    [attr.aria-pressed]="
+                      selectedSeverities().includes(option.value)
+                    "
+                    (click)="toggleSeverity(option.value)"
+                  >
+                    {{ option.label }}
+                  </button>
+                }
+              </div>
+
+              <button
+                class="reset-filters"
+                type="button"
+                (click)="resetFilters()"
+              >
+                Alle Filter zurücksetzen
               </button>
 
               <p class="result-count">
@@ -72,12 +97,12 @@ describe('TriageInbox', () => {
                       </p>
 
                       @for (
-                        signal of vulnerability.riskSignals;
-                        track signal.id
+                        riskSignal of vulnerability.riskSignals;
+                        track riskSignal.id
                       ) {
                         <dl>
-                          <dt>{{ signal.label }}</dt>
-                          <dd>{{ signal.explanation }}</dd>
+                          <dt>{{ riskSignal.label }}</dt>
+                          <dd>{{ riskSignal.explanation }}</dd>
                         </dl>
                       }
                     </section>
@@ -113,6 +138,7 @@ describe('TriageInbox', () => {
     expect(content).toContain('Kritisch');
     expect(content).toContain('Hoch');
     expect(content).toContain('Mittel');
+    expect(content).toContain('Niedrig');
 
     expect(content).toContain('Neu');
     expect(content).toContain('Zugewiesen');
@@ -137,6 +163,17 @@ describe('TriageInbox', () => {
 
     expect(vulnerabilities[2]?.dataset['severityType']).toBe('info');
     expect(vulnerabilities[2]?.dataset['workflowType']).toBe('in-progress');
+  });
+
+  it('should expose the number of vulnerabilities for each severity', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const criticalFilter = compiled.querySelector<HTMLElement>('[data-severity="critical"]');
+
+    const lowFilter = compiled.querySelector<HTMLElement>('[data-severity="low"]');
+
+    expect(criticalFilter?.dataset['amount']).toBe('1');
+    expect(lowFilter?.dataset['amount']).toBe('0');
   });
 
   it('should explain the signals used for prioritization', () => {
@@ -175,24 +212,79 @@ describe('TriageInbox', () => {
     );
   });
 
-  it('should show an empty state and reset the search', () => {
+  it('should filter vulnerabilities by multiple severities', () => {
     const compiled = fixture.nativeElement as HTMLElement;
+
+    const criticalFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="critical"]');
+
+    const highFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="high"]');
+
+    expect(criticalFilter).not.toBeNull();
+    expect(highFilter).not.toBeNull();
+
+    criticalFilter!.click();
+    highFilter!.click();
+    fixture.detectChanges();
+
+    const vulnerabilities = compiled.querySelectorAll('.vulnerability');
+
+    expect(vulnerabilities).toHaveLength(2);
+    expect(compiled.textContent).toContain(
+      'Remote-Code-Ausführung im öffentlich erreichbaren Gateway',
+    );
+    expect(compiled.textContent).toContain('Rechteausweitung im Identitätsdienst');
+    expect(compiled.textContent).not.toContain('Unzureichende Transportverschlüsselung');
+  });
+
+  it('should combine search and severity filters', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const highFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="high"]');
+
     const searchInput = compiled.querySelector<HTMLInputElement>('#search');
-    const clearButton = compiled.querySelector<HTMLButtonElement>('.clear-search');
 
+    expect(highFilter).not.toBeNull();
     expect(searchInput).not.toBeNull();
-    expect(clearButton).not.toBeNull();
 
-    searchInput!.value = 'nicht vorhandene schwachstelle';
+    highFilter!.click();
+
+    searchInput!.value = 'gateway';
     searchInput!.dispatchEvent(new Event('input'));
+
     fixture.detectChanges();
 
     expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(0);
-    expect(compiled.textContent).toContain('Keine Schwachstellen gefunden');
 
-    clearButton!.click();
+    expect(compiled.textContent).toContain('Keine Schwachstellen gefunden');
+  });
+
+  it('should reset search and severity filters together', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const criticalFilter = compiled.querySelector<HTMLButtonElement>('[data-severity="critical"]');
+
+    const searchInput = compiled.querySelector<HTMLInputElement>('#search');
+
+    const resetButton = compiled.querySelector<HTMLButtonElement>('.reset-filters');
+
+    expect(criticalFilter).not.toBeNull();
+    expect(searchInput).not.toBeNull();
+    expect(resetButton).not.toBeNull();
+
+    criticalFilter!.click();
+
+    searchInput!.value = 'nicht vorhandene schwachstelle';
+    searchInput!.dispatchEvent(new Event('input'));
+
     fixture.detectChanges();
 
+    expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(0);
+
+    resetButton!.click();
+    fixture.detectChanges();
+
+    expect(searchInput!.value).toBe('');
+    expect(criticalFilter!.getAttribute('aria-pressed')).toBe('false');
     expect(compiled.querySelectorAll('.vulnerability')).toHaveLength(3);
     expect(compiled.querySelector('.empty-state')).toBeNull();
   });

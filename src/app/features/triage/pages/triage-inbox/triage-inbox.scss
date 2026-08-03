@@ -18,25 +18,74 @@
 .page-header p,
 .section-header h2,
 .section-header p,
+.filter-card__header p,
+.filter-title,
+.filter-label,
 .vulnerability-id,
 .vulnerability-header h3,
-.vulnerability-card__content > p,
+.vulnerability-summary,
 .metadata,
 .risk-signal-list {
   margin: 0;
 }
 
-.vulnerability-id {
+.vulnerability-id,
+.filter-label {
   font-weight: 700;
 }
 
-.search-controls {
+.filter-card {
+  display: block;
+}
+
+.filter-card__content {
   display: grid;
+  gap: 1.5rem;
+}
+
+.filter-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.filter-card__header > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.filter-card__header sbb-transparent-button {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1.5rem 2rem;
+  align-items: start;
+}
+
+.search-control,
+.severity-filter {
+  min-width: 0;
 }
 
 .search-field {
-  width: min(100%, 32rem);
+  width: 100%;
   min-width: 0;
+}
+
+.severity-filter {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.filter-label {
+  line-height: 1.25;
 }
 
 .vulnerability-list {
@@ -55,34 +104,64 @@
 
 .vulnerability-card__content {
   display: grid;
+  gap: 1.25rem;
+}
+
+.vulnerability-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 19rem);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.vulnerability-main {
+  display: grid;
+  min-width: 0;
   gap: 1rem;
 }
 
 .vulnerability-header {
-  display: flex;
-  gap: 1rem;
-  align-items: start;
-  justify-content: space-between;
+  display: grid;
+  gap: 0.375rem;
 }
 
-.vulnerability-header > div {
-  display: grid;
-  gap: 0.25rem;
+.vulnerability-reference {
+  display: flex;
+  min-width: 0;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .severity-status {
   flex-shrink: 0;
 }
 
+.vulnerability-summary {
+  max-width: 60ch;
+  line-height: 1.5;
+}
+
+.vulnerability-facts,
+.facts-card {
+  display: block;
+  min-width: 0;
+}
+
 .metadata {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem 1.25rem;
 }
 
 .metadata div {
   display: grid;
+  min-width: 0;
   gap: 0.25rem;
+}
+
+.metadata__wide {
+  grid-column: auto;
 }
 
 .metadata dt {
@@ -90,8 +169,10 @@
 }
 
 .metadata dd {
+  min-width: 0;
   margin: 0;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .risk-signals {
@@ -144,9 +225,39 @@
   margin-block-start: 1.5rem;
 }
 
+/*
+ * The persistent sidebar reduces the usable content width considerably.
+ * Below this viewport width, the facts panel becomes a compact full-width row.
+ */
+@media (width < 90rem) {
+  .vulnerability-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .vulnerability-facts {
+    width: 100%;
+  }
+
+  .metadata {
+    grid-template-columns:
+      minmax(5rem, 0.6fr)
+      minmax(5rem, 0.6fr)
+      minmax(9rem, 1fr)
+      minmax(12rem, 1.4fr);
+  }
+}
+
 @media (width < 80rem) {
   .risk-signal {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (width < 64rem) {
+  .metadata {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem 1rem;
   }
 }
 
@@ -155,15 +266,26 @@
     padding-block: 1.5rem 2rem;
   }
 
-  .vulnerability-header {
+  .filter-card__header {
     display: grid;
   }
 
-  .metadata {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .filter-card__header sbb-transparent-button {
+    justify-self: start;
+    margin-inline-start: 0;
+  }
+
+  .vulnerability-card__content {
+    gap: 1rem;
   }
 
   .risk-signals__header {
     align-items: start;
+  }
+}
+
+@media (width < 22rem) {
+  .metadata {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
