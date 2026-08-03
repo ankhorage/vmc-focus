@@ -2,34 +2,39 @@
 
 [![CI](https://github.com/ankhorage/vmc-focus/actions/workflows/ci.yml/badge.svg)](https://github.com/ankhorage/vmc-focus/actions/workflows/ci.yml)
 
-**Vulnerability Management Cockpit** — an independent vulnerability management
+**Vulnerability Management Cockpit** — an independent vulnerability-management
 prototype built with Angular and the publicly available SBB Lyne Design System.
 
 > [!IMPORTANT]
 > **Independent portfolio prototype.** This project is not an official SBB product.
 > It uses only synthetic demo data and contains no confidential SBB information.
 
-VMC Focus is a portfolio project for a UX/UI Developer role in cyber security. It
-explores how complex vulnerability data can be turned into an understandable,
+VMC Focus is a portfolio case study for a UX/UI Developer role in cyber security. It
+explores how complex vulnerability data can be transformed into an understandable,
 accessible, and traceable decision workflow.
 
-The name **Focus** reflects the product goal: helping security teams focus on the
-vulnerabilities that require attention first and understand why.
+The name **Focus** reflects the central product goal: helping security teams identify
+which vulnerabilities require attention first and understand why.
 
-## Project status
+## Current status
 
-VMC Focus is actively developed as a work-in-progress case study.
+The implemented Triage Inbox currently demonstrates:
 
-The current implementation demonstrates the Triage Inbox, risk-based prioritization,
-explainable risk signals, responsive application navigation, and vulnerability search.
-Filtering, sorting, vulnerability details, and remediation workflows are planned next.
+- risk-based vulnerability prioritization;
+- explainable risk signals;
+- search across vulnerability information;
+- severity and workflow-status filtering;
+- sorting by priority, CVSS, EPSS, and remediation deadline;
+- responsive application navigation and content presentation;
+- accessible interaction patterns using SBB Lyne components;
+- synthetic German-language vulnerability data.
 
-The repository remains public during development so that reviewers can follow both the
-product decisions and the incremental implementation.
+The next product milestone is a vulnerability detail view with affected assets,
+ownership, and remediation actions.
 
-## Purpose
+## Product goal
 
-Security teams often need to combine multiple signals before deciding which
+Security teams often need to combine several signals before deciding which
 vulnerability requires attention:
 
 - technical severity;
@@ -48,19 +53,52 @@ VMC Focus helps users answer three questions:
 
 ## Current features
 
-### Product and UX
+### Triage and prioritization
 
-- Triage Inbox for open vulnerabilities
-- Risk-based ordering through synthetic fixtures
-- Explainable prioritization with progressively disclosed risk signals
-- Search across CVE identifiers, titles, descriptions, teams, and risk signals
-- Search normalization for case and diacritic differences
+- Prioritized inbox for open vulnerabilities
+- Risk-based default ordering
+- Explainable prioritization through progressively disclosed risk signals
+- CVE, title, description, team, and risk-signal search
+- Case-insensitive and diacritic-insensitive search
+- Multi-select severity filtering
+- Workflow-status filtering
+- Sorting by:
+  - risk priority;
+  - highest or lowest CVSS;
+  - highest EPSS;
+  - nearest remediation deadline
+- Combined search, filtering, and sorting
 - Live result count
-- Explicit empty-search state with reset action
-- German user-facing content
-- Visible severity, workflow state, ownership, CVSS, and EPSS information
-- Responsive presentation for desktop and smaller screens
+- Explicit empty-result state
+- Shared filter-reset action
+- Sorting retained independently from filter reset
+
+### Vulnerability information
+
+- Synthetic CVE identifiers
+- Technical severity
+- CVSS score
+- EPSS probability
+- Known-exploited state
+- Workflow status
+- Responsible team
+- Affected assets and applications in the domain model
+- Exposure and business-criticality information
+- Remediation urgency and deadline
+- Explainable risk signals
+
+### UX and accessibility
+
+- German user-facing content using Swiss spelling conventions
+- Responsive desktop, tablet, and mobile layouts
 - Light and dark theme support through Lyne
+- Information hierarchy that does not depend on color alone
+- Semantic headings and content structure
+- Explicit form labels
+- Keyboard-accessible Lyne controls
+- Visible workflow and severity labels
+- Progressive disclosure for detailed risk explanations
+- Distinction between filtering and sorting
 
 ### SBB Lyne integration
 
@@ -69,12 +107,14 @@ VMC Focus helps users answer three questions:
 - Lyne header and environment indicator
 - Lyne sidebar navigation
 - Lyne container layout
-- Lyne form field and clear control
+- Lyne cards
+- Lyne form fields and clear control
+- Lyne select and option components
+- Lyne tag group for multi-select filtering
 - Lyne status components
 - Lyne expansion panels
 - Lyne chip labels
 - Lyne message, title, and button components
-- Progressive enhancement with semantic native HTML controls
 - Preference for Lyne components before custom UI
 
 ### Engineering
@@ -82,9 +122,9 @@ VMC Focus helps users answer three questions:
 - Angular 22 standalone application
 - Strict TypeScript configuration
 - Lazy-loaded feature routing
+- Signal-based local UI state
 - Strictly typed vulnerability domain model
 - Synthetic development fixtures
-- Signal-based local UI state
 - Angular template accessibility linting
 - ESLint and Prettier validation
 - Knip unused-code analysis
@@ -110,7 +150,7 @@ VMC Focus helps users answer three questions:
 | Continuous integration | GitHub Actions                         |
 | Backend                | Planned PHP REST API                   |
 | API contract           | Planned OpenAPI specification          |
-| Design                 | Planned Figma case study               |
+| Design documentation   | Planned Figma case study               |
 
 ## Language convention
 
@@ -161,6 +201,7 @@ http://localhost:4200/triage
 | `npm run watch`             | Builds continuously in development mode.       |
 | `npm test -- --watch=false` | Runs all unit tests once and exits.            |
 | `npm run lint`              | Lints TypeScript and Angular templates.        |
+| `npm run lint:fix`          | Applies automatically fixable lint rules.      |
 | `npm run format`            | Formats supported project files with Prettier. |
 | `npm run format:check`      | Verifies formatting without changing files.    |
 | `npm run knip`              | Finds unused files, exports, and dependencies. |
@@ -183,9 +224,9 @@ Production dependencies can be audited separately from development tooling:
 npm audit --omit=dev --audit-level=moderate
 ```
 
-The complete development dependency tree can currently contain audit findings in
-transitive Angular CLI tooling. These findings do not affect the production dependency
-tree and must not be resolved through forced breaking downgrades.
+The complete development dependency tree can contain audit findings in transitive
+Angular CLI tooling. These findings do not affect the production dependency tree and
+must not be resolved through forced breaking downgrades.
 
 ## Continuous integration
 
@@ -238,7 +279,7 @@ Filter the result for specific component groups:
 ```bash
 grep -o '"\./[^"]*"' \
   node_modules/@sbb-esta/lyne-angular/package.json |
-  grep -E 'header|sidebar|navigation|container|link|button' |
+  grep -E 'header|sidebar|navigation|container|select|tag|status|button' |
   sort
 ```
 
@@ -246,11 +287,10 @@ grep -o '"\./[^"]*"' \
 
 ```bash
 sed -n '1,220p' \
-  node_modules/@sbb-esta/lyne-angular/types/sbb-esta-lyne-angular-header.d.ts
+  node_modules/@sbb-esta/lyne-angular/types/sbb-esta-lyne-angular-select.d.ts
 ```
 
-This is useful because the installed Lyne API may differ from examples written for
-another version.
+The installed Lyne API may differ from examples written for another version.
 
 ## Project structure
 
@@ -259,6 +299,8 @@ another version.
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+├── .vscode/
+│   └── settings.json
 ├── docs/
 │   └── PRODUCT.md
 ├── src/
@@ -279,6 +321,7 @@ another version.
 │                       ├── triage-inbox.html
 │                       ├── triage-inbox.scss
 │                       └── triage-inbox.spec.ts
+├── .hintrc
 ├── angular.json
 ├── eslint.config.js
 ├── package.json
@@ -295,6 +338,7 @@ another version.
 - Keep fixture data replaceable by a service or API adapter.
 - Model loading, empty, error, permission, and success states explicitly.
 - Prefer semantic HTML and accessible interaction patterns.
+- Keep filtering and sorting responsibilities distinct.
 - Keep commits focused and independently verifiable.
 - Keep the production dependency tree free from known vulnerabilities.
 - Treat bundle budgets as explicit quality constraints.
@@ -316,7 +360,7 @@ The current domain model contains:
 - explainable risk signals.
 
 All vulnerability records, CVE identifiers, people, teams, applications, and assets
-currently used by the project are synthetic demo data.
+used by the project are synthetic demo data.
 
 ## UX principles
 
@@ -337,6 +381,11 @@ Show the most relevant information first and technical details on demand.
 
 The responsible team and next action should always be understandable.
 
+### Separate filtering and sorting
+
+Filtering controls which records are visible. Sorting controls only their order. These
+operations should remain visually and behaviorally distinct.
+
 ### Design for accessibility
 
 Information must not depend on color alone. Keyboard navigation, visible focus,
@@ -346,14 +395,30 @@ semantic structure, and understandable labels are required.
 
 Existing Lyne components and design tokens are preferred. Custom styling should be
 limited to application-specific layout, documented exceptions, and cases where Lyne
-intentionally provides no suitable component.
+provides no suitable component.
 
 ### Preserve visual restraint
 
 Cyber-security interfaces should communicate urgency and hierarchy without turning
 every element into an alert. Color, elevation, and emphasis must carry meaning.
 
-## Planned flow
+## Implemented user flow
+
+```text
+Open Triage Inbox
+    ↓
+Search or filter vulnerabilities
+    ↓
+Sort the visible results
+    ↓
+Identify the highest-priority vulnerability
+    ↓
+Understand its risk signals
+    ↓
+Find its workflow status and responsible team
+```
+
+## Planned product flow
 
 ```text
 Triage Inbox
@@ -369,25 +434,30 @@ Verify, resolve, or accept risk
 
 ## Roadmap
 
-### Triage Inbox
+### Completed Triage Inbox capabilities
 
+- Prioritized vulnerability cards
+- Explainable risk signals
+- Vulnerability search
 - Severity filter
-- Workflow status filter
-- Sorting by risk priority, CVSS, EPSS, and deadline
-- Filter reset action
-- Improved result summaries
-- Browser-based interaction tests
+- Workflow-status filter
+- Sorting by priority, CVSS, EPSS, and deadline
+- Combined search and filtering
+- Filter reset
+- Empty-result state
+- Responsive presentation
+- Unit-test coverage for search, filtering, sorting, and reset behavior
 
-### Vulnerability workflow
+### Next product milestone
 
 - Vulnerability detail view
 - Affected assets and applications
-- Ownership and assignment
+- Ownership and assignment action
 - Remediation workflow
 - Resolution and risk-acceptance decisions
 - Audit trail
 
-### Application states
+### Additional application states
 
 - Loading state
 - API error state
@@ -400,9 +470,8 @@ Verify, resolve, or accept risk
 - PHP REST API
 - OpenAPI contract
 - Browser-based end-to-end tests
-- Deployment workflow
 - Public preview environment
-- Additional GitHub Actions quality checks
+- Deployment workflow
 - Figma case study and developer handoff documentation
 
 ## Product documentation
