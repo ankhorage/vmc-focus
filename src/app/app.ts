@@ -1,9 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { SbbContainerModule } from '@sbb-esta/lyne-angular/container';
+import { SbbHeaderModule } from '@sbb-esta/lyne-angular/header';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [
+    RouterLink,
+    RouterOutlet,
+    SbbContainerModule,
+    SbbHeaderModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,15 +1,10 @@
 :host {
   display: block;
-  min-height: 100vh;
 }
 
 .triage-inbox {
   display: grid;
   gap: 2rem;
-
-  max-width: 90rem;
-  margin-inline: auto;
-  padding: 2rem;
 }
 
 .page-header,
@@ -94,10 +89,6 @@
 }
 
 @media (width < 48rem) {
-  .triage-inbox {
-    padding: 1rem;
-  }
-
   .vulnerability-header {
     display: grid;
   }

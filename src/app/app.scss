@@ -1,4 +1,31 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+
+  color: inherit;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.brand__name {
+  font-weight: 700;
+}
+
+.brand__section {
+  font-size: 0.75rem;
+}
+
+.brand:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 0.25rem;
 }

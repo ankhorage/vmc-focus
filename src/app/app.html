@@ -1,1 +1,21 @@
-<router-outlet />
+<sbb-header [expanded]="true" size="s">
+  <a
+    class="brand"
+    routerLink="/triage"
+    aria-label="VMC Focus – Triage-Posteingang"
+  >
+    <span class="brand__name">VMC Focus</span>
+    <span class="brand__section">Schwachstellenmanagement</span>
+  </a>
+
+  <sbb-header-environment>Demo</sbb-header-environment>
+</sbb-header>
+
+<sbb-container
+  class="app-content"
+  [expanded]="true"
+  [backgroundExpanded]="true"
+  color="milk"
+>
+  <router-outlet />
+</sbb-container>
