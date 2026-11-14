@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "application",
+  "title": "VMC Focus",
+  "summary": "Demonstrates an accessible vulnerability-management triage cockpit with explainable risk prioritization and synthetic data.",
+  "purpose": "Explore how security teams can turn multiple vulnerability signals into an understandable, traceable prioritization workflow.",
+  "domain": "vulnerability management user experience",
+  "responsibilities": [
+    "Present a prioritized inbox of synthetic vulnerabilities and their risk signals.",
+    "Support search, filtering, sorting, responsive navigation, and accessible light and dark themes.",
+    "Demonstrate a portfolio-quality Angular application built with the SBB Lyne Design System."
+  ],
+  "boundaries": [
+    "Is not an official SBB product.",
+    "Does not ingest production vulnerability, asset, identity, or remediation data.",
+    "Does not provide a production vulnerability scanner or remediation backend."
+  ],
+  "audience": [
+    "Security and product practitioners evaluating vulnerability-triage interaction design.",
+    "Reviewers assessing frontend architecture, accessibility, and design-system integration."
+  ],
+  "useCases": [
+    "Prioritize synthetic vulnerabilities by severity, exploitation probability, exposure, and remediation urgency.",
+    "Search and filter a triage inbox while retaining an independent sort order.",
+    "Inspect explainable risk signals in responsive light and dark layouts."
+  ],
+  "architecture": {
+    "role": "Standalone Angular portfolio application with local synthetic vulnerability data and SBB Lyne presentation components.",
+    "invariants": [
+      "All demonstrated vulnerability information remains synthetic and non-confidential.",
+      "Risk priority remains explainable through visible contributing signals.",
+      "Information hierarchy and interactions remain accessible without relying on color alone."
+    ]
+  },
+  "constraints": {
+    "platforms": ["Modern web browsers"],
+    "limitations": [
+      "The current implementation is a prototype and does not connect to live vulnerability-management systems."
+    ]
+  }
+}
